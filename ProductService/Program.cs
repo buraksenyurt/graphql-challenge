@@ -1,21 +1,23 @@
+using Microsoft.EntityFrameworkCore;
+using ProductService.Context;
+using ProductService.Contracts;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddDbContext<SouthWindDbContext>(options =>
+            {
+                options.UseNpgsql(builder.Configuration["ConnectionStrings:SouthWindConStr"]);
+                options.LogTo(Console.WriteLine, new[] { Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.CommandExecuting });
+            });
+
+builder.Services
+    .AddGraphQLServer()
+    .RegisterDbContext<SouthWindDbContext>()
+    .AddQueryType<Query>();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.MapGet("/", () => "For GraphQL server -> http://localhost:5124/graphql");
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
+app.MapGraphQL();
 app.Run();
