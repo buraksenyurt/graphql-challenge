@@ -1,4 +1,4 @@
-namespace CommentService.Model;
+namespace ProductService.Model;
 
 public class UserComment
 {

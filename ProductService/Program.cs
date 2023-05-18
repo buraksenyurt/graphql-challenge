@@ -1,8 +1,18 @@
+using System.Net.Http.Headers;
 using Microsoft.EntityFrameworkCore;
 using ProductService.Context;
 using ProductService.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddHttpClient(name: "UserCommentService",
+configureClient: options =>
+{
+    options.BaseAddress = new("http://localhost:5245/");
+    options.DefaultRequestHeaders.Accept.Add(
+        new MediaTypeWithQualityHeaderValue("application/json", 1.0)
+    );
+});
 
 builder.Services.AddDbContext<SouthWindDbContext>(options =>
             {
