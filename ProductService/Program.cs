@@ -4,6 +4,8 @@ using ProductService.Context;
 using ProductService.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 builder.Services.AddHttpClient(name: "UserCommentService",
 configureClient: options =>

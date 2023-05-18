@@ -9,18 +9,21 @@ public class Query
 {
     private readonly IHttpClientFactory _clientFactory;
     private readonly SouthWindDbContext _dbContext;
-    public Query(SouthWindDbContext dbContext, IHttpClientFactory clientFactory)
+    private readonly ILogger _logger;
+    public Query(SouthWindDbContext dbContext, IHttpClientFactory clientFactory, ILogger<Query> logger)
     {
         _clientFactory = clientFactory;
         _dbContext = dbContext;
+        _logger = logger;
     }
     public string Ping() => "Pong";
     public async Task<ProductInfo> GetProductInfo(int productId)
     {
+        _logger.LogInformation($"{productId} numaralı ürün için bilgiler alınacak");
         var productInfo = (from p in _dbContext.Products
                            join c in _dbContext.Categories
                            on p.CategoryId equals c.Id
-                           where p.Id==productId
+                           where p.Id == productId
                            select new ProductInfo
                            {
                                Id = productId,
@@ -33,6 +36,11 @@ public class Query
                                //Photos = new List<string>() // Fiziki diskten okuma yapan başka bir servisten alacağız
                            }).Single();
 
+        // if (productInfo is null)
+        // {
+
+        // }
+
         try
         {
             var client = _clientFactory.CreateClient(name: "UserCommentService");
@@ -43,7 +51,7 @@ public class Query
         }
         catch (Exception excp)
         {
-            Console.WriteLine(excp.ToString());
+            _logger.LogError(excp.Message);
         }
 
         return productInfo;
