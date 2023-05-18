@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductService", "ProductService\ProductService.csproj", "{A85EDA63-17F5-400F-935F-58A03B7CF7DF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommentService", "CommentService\CommentService.csproj", "{A95B1026-D940-438C-B981-AB459AD36B26}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{A85EDA63-17F5-400F-935F-58A03B7CF7DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A85EDA63-17F5-400F-935F-58A03B7CF7DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A85EDA63-17F5-400F-935F-58A03B7CF7DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A95B1026-D940-438C-B981-AB459AD36B26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A95B1026-D940-438C-B981-AB459AD36B26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A95B1026-D940-438C-B981-AB459AD36B26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A95B1026-D940-438C-B981-AB459AD36B26}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

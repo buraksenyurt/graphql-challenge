@@ -6,6 +6,7 @@ namespace ProductService.Contracts;
 
 public class Query
 {
+    public string Ping() => "Pong";
     public ProductInfo GetProductInfo(SouthWindDbContext dbContext, int productId)
     {
         throw new NotImplementedException();
