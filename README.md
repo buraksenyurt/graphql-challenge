@@ -21,7 +21,7 @@ dotnet ef database update
 GraphQL tarafında aşağıdakine benzer bir sorguyu işletebilmek düşüncesindeyiz.
 
 ```graphql
-query GetProductInfos {
+query Query{
   productInfo(productId: 1) {
     name,
     unitPrice,
@@ -34,5 +34,9 @@ query GetProductInfos {
   }
 }
 ```
+
+İlk sonuçlar fena değil.
+
+![images/runtime_01.png](images/runtime_01.png)
 
 __TODO: Fotoğraflar ve stock durumu ile ilgili farklı servisler eklenecek__
