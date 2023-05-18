@@ -6,6 +6,33 @@ Uygulamanın senaryosu şöyle...Bir e-ticaret platformunun servislerinden biris
 
 ```bash
 # Postgresql tarafı için docker imajı kullanılabilir
-docker run --name postgresql POSTGRES_DB=southhwind POSTGRES_USER=scoth -e POSTGRES_PASSWORD=tiger -p 5432:5432 -v /data:/var/lib/postgresql/data -d postgres
+docker run --name postgresql -e POSTGRES_USER=scoth -e POSTGRES_PASSWORD=tiger -p 5432:5432 -v /data:/var/lib/postgresql/data -d postgres
 
+# Migration için EF tool'a ihtiyacımız olacaktır
+dotnet tool install -g dotnet-ef
+
+# Migration planı oluşturup çalıştırmak için
+dotnet ef migrations add InitialCreate
+dotnet ef database update
 ```
+
+## Örnek Sorgu
+
+GraphQL tarafında aşağıdakine benzer bir sorguyu işletebilmek düşüncesindeyiz.
+
+```graphql
+query GetProductInfos {
+  productInfo(productId: 1) {
+    name,
+    unitPrice,
+    categoryName,
+    comments {
+        star,
+        content,
+        date
+    }
+  }
+}
+```
+
+__TODO: Fotoğraflar ve stock durumu ile ilgili farklı servisler eklenecek__
