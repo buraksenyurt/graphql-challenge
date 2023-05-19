@@ -56,3 +56,7 @@ UtilityApp isimli uygulama Redis tarafına minik ürün görsellerini atmak içi
 ```bash
 dotnet add package NRedisStack
 ```
+
+Console uygulaması ile assets klasöründeki kobay 4 fotoğraf redis'e yüklenebiliyor.
+
+![images/runtime_03.png](images/runtime_03.png)
