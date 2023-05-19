@@ -31,15 +31,19 @@ ping
 GraphQL tarafında aşağıdakine benzer bir sorguyu işletebilmek düşüncesindeyiz.
 
 ```graphql
-query Query{
+query Query {
   productInfo(productId: 1) {
-    name,
-    unitPrice,
-    categoryName,
+    name
+    unitPrice
+    categoryName
+    photos{
+      name,
+      base64Content
+    }
     comments {
-        star,
-        content,
-        date
+      star
+      content
+      date
     }
   }
 }
@@ -51,7 +55,7 @@ query Query{
 
 ## Notlar
 
-UtilityApp isimli uygulama Redis tarafına minik ürün görsellerini atmak için kullanılmakta. Redis'den çok sık değişmeyeceğini düşündüğümüz ürün görsellerini alıyoruz. Bunu GraphQL servisi bir resource olarak kullanıyor. Console tipindeki .Net uygulaması NRedisStack paketini kullanmakta.
+UtilityApp isimli uygulama Redis tarafına minik ürün görsellerini nasıl atabileceğimizi test etmek için kullanılmakta. Redis'den çok sık değişmeyeceğini düşündüğümüz ürün görsellerini alabiliriz. Kobay fotoğrafları dağıtık bir cache sisteminden çekmek oldukça mantıklı gibi. Hem Console hem de GraphQL servisi, Redis için NRedisStack isimli Nuget paketini kullanmakta.
 
 ```bash
 dotnet add package NRedisStack
@@ -60,3 +64,31 @@ dotnet add package NRedisStack
 Console uygulaması ile assets klasöründeki kobay 4 fotoğraf redis'e yüklenebiliyor.
 
 ![images/runtime_03.png](images/runtime_03.png)
+
+## Nasıl Çalıştırırız?
+
+- Öncelikle Postgresql ve Redis container'larının ayakta olduğundan emin olmalıyız.
+- Diğer yandan ilk önce CommentService çalıştırılmalıdır.
+- Ardından ProductService çalışıtırılır.
+- Cache'duran ürün görselleri zaman içinde silinmiş olabilir. Bunları "key yoksa ekle" şeklinde ProductService tarafında da ele alabiliriz ancak amaç var olan dağıtık cache kaynaklarından gelmesini denemektir. Bu nedenle belki UtilityApp'ı bir kere çalıştırmak gerekebilir.
+
+```bash
+# Postgresql'i başlat
+sudo docker start [container_no]
+
+# Redis'i başlat
+sudo docker start [container_no]
+
+# Belki UtilitApp'ı bir kere çalıştırmak gerekebilir
+dotnet run
+
+# CommentService'i çalıştır
+dotnet run
+
+# ProductService'i çalıştır
+dotnet run
+```
+
+Nihayetinden aşağıdakine benzer şekilde bir çıktı elde edebilmeliyiz.
+
+![images/runtime_04.png](images/runtime_04.png)
