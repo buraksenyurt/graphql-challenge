@@ -6,19 +6,22 @@ public class PhotoCacheService
     : ICacheService
 {
     private IDatabase _db;
-    public PhotoCacheService()
+    private readonly ILogger _logger;
+    public PhotoCacheService(ILogger<PhotoCacheService> logger)
     {
         var redis = ConnectionMultiplexer.Connect("127.0.0.1:6378");
         _db = redis.GetDatabase();
+        _logger = logger;
     }
     public string GetData(string key)
     {
         var value = _db.StringGet(key);
         if (!string.IsNullOrEmpty(value))
         {
-            return string.Empty;
+            _logger.LogInformation($"{key} için {value.Length} uzunluğunda içerik cache'den geliyor");
+            return value;
         }
-        return value;
+        return string.Empty;
     }
     public bool SetData(string key, string value)
     {

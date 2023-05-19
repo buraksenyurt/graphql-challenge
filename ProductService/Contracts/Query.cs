@@ -70,7 +70,9 @@ public class Query
             for (int i = 1; i <= 4; i++)
             {
                 string key = $"{keyName}0{i}.png";
+                _logger.LogInformation($"{key} fotoğrafı cache'den çekilecek.");
                 var photoContent = _cacheService.GetData(key);
+                _logger.LogInformation($"{photoContent.Length} boyutunda veri bulundu.");
                 if (photoContent != null)
                 {
                     var photo = new Photo
