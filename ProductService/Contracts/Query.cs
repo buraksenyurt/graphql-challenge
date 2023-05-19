@@ -1,7 +1,8 @@
+using ProductService.Cache;
 using ProductService.Context;
 using ProductService.DTOs;
 using ProductService.Model;
-using System.Linq;
+using StackExchange.Redis;
 
 namespace ProductService.Contracts;
 
@@ -9,13 +10,15 @@ public class Query
 {
     private readonly IHttpClientFactory _clientFactory;
     private readonly ILogger _logger;
-    public Query(IHttpClientFactory clientFactory, ILogger<Query> logger)
+    private readonly ICacheService _cacheService;
+    public Query(IHttpClientFactory clientFactory, ILogger<Query> logger, ICacheService cacheService)
     {
         _clientFactory = clientFactory;
         _logger = logger;
+        _cacheService = cacheService;
     }
     public string Ping() => "Pong";
-    public async Task<ProductInfo> GetProductInfo(SouthWindDbContext dbContext,int productId)
+    public async Task<ProductInfo> GetProductInfo(SouthWindDbContext dbContext, int productId)
     {
         _logger.LogInformation($"{productId} numaralı ürün için bilgiler alınacak");
         var productInfo = (from p in dbContext.Products
@@ -35,21 +38,56 @@ public class Query
                            }).Single();
 
         _logger.LogInformation($"'{productInfo.Name}' isimli ürün bulundu");
+        productInfo.Comments = await LoadComments(productId);
+        productInfo.Photos = await LoadPhotos("pencil_");
 
+        return productInfo;
+    }
+
+    private async Task<List<UserComment>> LoadComments(int productId)
+    {
+        List<UserComment> comments = new List<UserComment>();
         try
         {
             var client = _clientFactory.CreateClient(name: "UserCommentService");
             var request = new HttpRequestMessage(method: HttpMethod.Get, requestUri: $"api/user/comments/{productId}");
             var response = await client.SendAsync(request);
-            var comments = await response.Content.ReadFromJsonAsync<IEnumerable<UserComment>>();
-            productInfo.Comments = comments.ToList();
+            var userComments = await response.Content.ReadFromJsonAsync<IEnumerable<UserComment>>();
+            comments = userComments.ToList();
         }
         catch (Exception excp)
         {
             _logger.LogError(excp.Message);
         }
+        return comments;
+    }
 
-        return productInfo;
+    private async Task<List<Photo>> LoadPhotos(string keyName)
+    {
+        List<Photo> photos = new List<Photo>();
+        try
+        {
+            for (int i = 1; i <= 4; i++)
+            {
+                string key = $"{keyName}0{i}.png";
+                var photoContent = _cacheService.GetData(key);
+                if (photoContent != null)
+                {
+                    var photo = new Photo
+                    {
+                        Name = key,
+                        Base64Content = photoContent
+                    };
+                    photos.Add(photo);
+                }
+
+            }
+        }
+        catch (Exception excp)
+        {
+            _logger.LogError(excp.Message);
+        }
+        return photos;
     }
 
     public IQueryable<Category> GetCategories(SouthWindDbContext dbContext) => dbContext.Categories.OrderBy(c => c.Title);

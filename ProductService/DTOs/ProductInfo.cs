@@ -11,7 +11,7 @@ namespace ProductService.DTOs
         public decimal UnitPrice { get; set; }
         public int StockLevel { get; set; }
         public List<UserComment> Comments { get; set; } = new List<UserComment>();
-        public List<string> Photos { get; set; } = new List<string>();
+        public List<Photo> Photos { get; set; } = new List<Photo>();
         public bool InStock { get; set; }
     }
 }

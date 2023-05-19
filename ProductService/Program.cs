@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using Microsoft.EntityFrameworkCore;
+using ProductService.Cache;
 using ProductService.Context;
 using ProductService.Contracts;
 
@@ -16,6 +17,7 @@ configureClient: options =>
     );
 });
 
+builder.Services.AddScoped<ICacheService, PhotoCacheService>();
 builder.Services.AddDbContext<SouthWindDbContext>(options =>
             {
                 options.UseNpgsql(builder.Configuration["ConnectionStrings:SouthWindConStr"]);
