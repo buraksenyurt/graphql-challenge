@@ -1,16 +1,20 @@
-﻿using NRedisStack;
-using NRedisStack.RedisStackCommands;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 
 Console.WriteLine("Redis tarafına görsel atmak için yardımcı programdır.");
 
 var redis = ConnectionMultiplexer.Connect("127.0.0.1:6378");
 IDatabase db = redis.GetDatabase();
 
-if (db.StringGet("pencil1").IsNull)
+var files = Directory.GetFiles("assets", "*.png");
+foreach (var file in files)
 {
-    Console.WriteLine("Redis'te yok. Yükleniyor");
-    byte[] imageArray = File.ReadAllBytes(@"assets/pencil_01.png");
-    string base64Str = Convert.ToBase64String(imageArray);
-    db.StringSet("pencil1", base64Str);
+    var fileName = new FileInfo(file).Name;
+    if (!db.KeyExists(fileName))
+    {
+        Console.WriteLine($"Redis tarafında '{fileName}' isimli key yok.\nYükleniyor...");
+        byte[] imgArray = File.ReadAllBytes(file);
+        string base64Str = Convert.ToBase64String(imgArray);
+        db.StringSet(fileName, base64Str);
+        Console.WriteLine($"{base64Str.Length}, Yüklendi");
+    }
 }
