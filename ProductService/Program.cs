@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ProductService.Cache;
 using ProductService.Context;
 using ProductService.Contracts;
+using ProductService.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
@@ -21,12 +22,12 @@ builder.Services.AddScoped<ICacheService, PhotoCacheService>();
 builder.Services.AddDbContext<SouthWindDbContext>(options =>
             {
                 options.UseNpgsql(builder.Configuration["ConnectionStrings:SouthWindConStr"]);
-                options.LogTo(Console.WriteLine, new[] { Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.CommandExecuting });
+                options.LogTo(Console.WriteLine, [Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.CommandExecuting]);
             });
 
 builder.Services
     .AddGraphQLServer()
-    .RegisterDbContext<SouthWindDbContext>()
+    .RegisterDbContextFactory<SouthWindDbContext>()
     .AddQueryType<Query>();
 
 var app = builder.Build();

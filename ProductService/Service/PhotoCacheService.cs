@@ -1,11 +1,12 @@
+using ProductService.Cache;
 using StackExchange.Redis;
 
-namespace ProductService.Cache;
+namespace ProductService.Service;
 
 public class PhotoCacheService
     : ICacheService
 {
-    private IDatabase _db;
+    private readonly IDatabase _db;
     private readonly ILogger _logger;
     public PhotoCacheService(ILogger<PhotoCacheService> logger)
     {
@@ -18,7 +19,7 @@ public class PhotoCacheService
         var value = _db.StringGet(key);
         if (!string.IsNullOrEmpty(value))
         {
-            _logger.LogInformation($"{key} için {value.Length} uzunluğunda içerik cache'den geliyor");
+            _logger.LogInformation("{} için {} uzunluğunda içerik cache'den geliyor", key, value.Length);
             return value;
         }
         return string.Empty;

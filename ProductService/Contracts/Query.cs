@@ -2,25 +2,19 @@ using ProductService.Cache;
 using ProductService.Context;
 using ProductService.DTOs;
 using ProductService.Model;
-using StackExchange.Redis;
 
 namespace ProductService.Contracts;
 
-public class Query
+public class Query(IHttpClientFactory clientFactory, ILogger<Query> logger, ICacheService cacheService)
 {
-    private readonly IHttpClientFactory _clientFactory;
-    private readonly ILogger _logger;
-    private readonly ICacheService _cacheService;
-    public Query(IHttpClientFactory clientFactory, ILogger<Query> logger, ICacheService cacheService)
-    {
-        _clientFactory = clientFactory;
-        _logger = logger;
-        _cacheService = cacheService;
-    }
+    private readonly IHttpClientFactory _clientFactory = clientFactory;
+    private readonly ILogger _logger = logger;
+    private readonly ICacheService _cacheService = cacheService;
+
     public string Ping() => "Pong";
     public async Task<ProductInfo> GetProductInfo(SouthWindDbContext dbContext, int productId)
     {
-        _logger.LogInformation($"{productId} numaralı ürün için bilgiler alınacak");
+        _logger.LogInformation("{} numaralı ürün için bilgiler alınacak", productId);
         var productInfo = (from p in dbContext.Products
                            join c in dbContext.Categories
                            on p.CategoryId equals c.Id
@@ -46,14 +40,14 @@ public class Query
 
     private async Task<List<UserComment>> LoadComments(int productId)
     {
-        List<UserComment> comments = new List<UserComment>();
+        List<UserComment> comments = [];
         try
         {
             var client = _clientFactory.CreateClient(name: "UserCommentService");
             var request = new HttpRequestMessage(method: HttpMethod.Get, requestUri: $"api/user/comments/{productId}");
             var response = await client.SendAsync(request);
             var userComments = await response.Content.ReadFromJsonAsync<IEnumerable<UserComment>>();
-            comments = userComments.ToList();
+            comments = userComments == null ? [] : userComments.ToList();
         }
         catch (Exception excp)
         {
@@ -64,15 +58,15 @@ public class Query
 
     private async Task<List<Photo>> LoadPhotos(string keyName)
     {
-        List<Photo> photos = new List<Photo>();
+        List<Photo> photos = [];
         try
         {
             for (int i = 1; i <= 4; i++)
             {
                 string key = $"{keyName}0{i}.png";
-                _logger.LogInformation($"{key} fotoğrafı cache'den çekilecek.");
+                _logger.LogInformation("{} fotoğrafı cache'den çekilecek.",key);
                 var photoContent = _cacheService.GetData(key);
-                _logger.LogInformation($"{photoContent.Length} boyutunda veri bulundu.");
+                _logger.LogInformation("{} boyutunda veri bulundu.", photoContent.Length);
                 if (photoContent != null)
                 {
                     var photo = new Photo
@@ -87,7 +81,7 @@ public class Query
         }
         catch (Exception excp)
         {
-            _logger.LogError(excp.Message);
+            _logger.LogError("Error: {}", excp.Message);
         }
         return photos;
     }
